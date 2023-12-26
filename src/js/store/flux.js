@@ -1,43 +1,81 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			url: "https://playground.4geeks.com/apis/fake/contact/",
+			urlWithSlug: "https://playground.4geeks.com/apis/fake/contact/agenda/seiglie",
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
+			setContactToEdit: (contact) => {
+				console.log(contact)
+				setStore({contactToEdit: contact})
 			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
+			editContact: async (newData, id) => {
+				const opt = {
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(
+					{
+						"full_name": newData.full_name ,
+						"email": newData.email ,
+						"agenda_slug": "seiglie",
+						"address": newData.address ,
+						"phone": newData.phone 
+					})	
+				}
+				const resp = await fetch(getStore().url+id, opt)
+				const data = await resp.json()
+				console.log(data)
 			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+			getOneContact: async (id)=> {				
+				const resp = await fetch(getStore().url+id);
+				const data = await resp.json();
+				setStore({singleContact : data})
+			},
 
-				//reset the global store
-				setStore({ demo: demo });
-			}
+			deleteContact: async (id)=> {
+				//DELETE: /apis/fake/contact/{contact_id}
+				const opt = {
+					method: "DELETE",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify()
+				};
+				const resp = await fetch(getStore().url+id, opt);
+				const data = await resp.json();
+				console.log(data)
+				await getActions().getContacts();
+			},
+
+			newContact: async (contactData) => {
+				const opt = {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(
+					{
+						"full_name": contactData.full_name || "Dave Bradley",
+						"email": contactData.email || "dave@gmail.com",
+						"agenda_slug": "seiglie",
+						"address": contactData.address || "47568 NW 34ST, 33434 FL, USA",
+						"phone": contactData.phone || "7864445566"
+					})
+				}
+				const resp = await fetch(getStore().url, opt)
+				const data = await resp.json()
+				console.log(data)
+				return true
+			},
+			getContacts: async ()=>{
+				const resp = await fetch(getStore().urlWithSlug)
+				const data = await resp.json()
+				setStore({contacts: data})
+
+			},
 		}
 	};
 };
