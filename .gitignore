@@ -1,5 +1,5 @@
 # ignore all files starting with .
-.*
+
 
 # track this file .gitignore (i.e. do NOT ignore it)
 !.gitignore
@@ -62,6 +62,6 @@ public/
 !.gitpod.yml
 !.htaccess
 !.eslintrc
-!.env.example
+
 .now
 .vercel
